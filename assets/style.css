@@ -521,7 +521,7 @@ body{font-feature-settings:"kern","liga"}
 .hdr .wrap{height:auto;display:block}
 .hdr .mast{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px;height:104px;transition:height .35s cubic-bezier(.2,.8,.2,1),opacity .2s;overflow:hidden}
 .logo{display:block;line-height:0}
-.logo .lg{height:66px;width:auto;display:block}
+.logo .lg{height:72px;width:auto;display:block}
 .mast-l{display:flex;gap:22px;align-items:center}
 .tlink{display:inline-flex;gap:8px;align-items:center;font-size:13.5px;font-weight:500;color:#3A4054;padding:6px 0;border-bottom:1px solid transparent}
 .tlink:hover{color:var(--ink);border-color:var(--ink)}
@@ -615,7 +615,7 @@ body{font-feature-settings:"kern","liga"}
 @media (max-width:1020px){
   .hdr .mast{grid-template-columns:auto 1fr;height:74px}
   .mast-l{display:none}
-  .logo .lg{height:50px}
+  .logo .lg{height:54px}
   .navrow{display:none}
   .hdr.menu-open .navrow{display:block}
   .hdr.menu-open .navrow .wrap{height:auto;display:block;padding-bottom:12px}
@@ -627,7 +627,7 @@ body{font-feature-settings:"kern","liga"}
 @media (max-width:640px){
   .hdr .mast{height:64px;gap:10px}
   .hdr.scrolled .mast{height:64px}
-  .logo .lg{height:40px}
+  .logo .lg{height:44px}
   .mast-r .btn span:last-child{display:none}
   .mast-r .btn{padding:0 11px}
   .hero h1{font-size:40px}
