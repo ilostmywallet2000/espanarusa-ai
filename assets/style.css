@@ -735,3 +735,4 @@ body{font-feature-settings:"kern","liga"}
 @media (max-width:640px){.vit-bar{min-width:0;width:100%}.vit-bar .pills{width:calc(100% + 56px);max-width:calc(100vw);min-width:0;box-sizing:border-box}}
 .wrap.two>*{min-width:0}
 .cards3.cards2{grid-template-columns:1fr 1fr}.cards3>*{min-width:0}@media (max-width:640px){.cards3.cards2{grid-template-columns:1fr}}
+.topbar .tb-since{font-style:normal;color:var(--gold-d);margin-left:12px;padding-left:12px;border-left:1px solid rgba(246,241,231,.2);letter-spacing:.02em}
