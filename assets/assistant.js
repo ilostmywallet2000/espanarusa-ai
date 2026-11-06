@@ -44,9 +44,11 @@ function md(src){
 
 /* ---------- knowledge helpers ---------- */
 function norm(s){ return (s||"").toLowerCase().replace(/ё/g,"е") }
+// a key matches only at the start of a word ("дет" → «дети», not «будет»)
+function hasKey(t,key){ const k=norm(key).trim(); if(!k) return false; const re=new RegExp("(^|[^a-zа-яáéíóúñü0-9])"+k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")); return re.test(t) }
 function searchKB(q,n=2){
-  const t=norm(q);
-  return KB.map(k=>({k,s:k.keys.reduce((a,key)=>a+(t.includes(norm(key))?key.length+3:0),0)+(t.includes(norm(k.title))?5:0)}))
+  const t=" "+norm(q)+" ";
+  return KB.map(k=>({k,s:k.keys.reduce((a,key)=>a+(hasKey(t,key)?key.length+3:0),0)+(hasKey(t,k.title)?5:0)}))
     .filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,n).map(x=>x.k);
 }
 function findServices(q){
