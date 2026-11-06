@@ -1,0 +1,48 @@
+(function(){
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+document.addEventListener("DOMContentLoaded",()=>{
+  const hdr=$(".hdr"); const onS=()=>{ if(!hdr) return; const y=scrollY; if(y>140) hdr.classList.add("scrolled"); else if(y<24) hdr.classList.remove("scrolled") }; onS(); addEventListener("scroll",onS,{passive:true});
+  const td=$("[data-today]"); if(td){ try{ const t=new Date().toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long",year:"numeric"}); td.textContent=t.charAt(0).toUpperCase()+t.slice(1) }catch(e){} }
+  const bg=$(".burger"); if(bg) bg.onclick=()=>hdr.classList.toggle("menu-open");
+  // reveal
+  if("IntersectionObserver" in window){ const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target) } }),{rootMargin:"0px 0px -8% 0px"}); $$(".rv").forEach(el=>io.observe(el)) } else $$(".rv").forEach(el=>el.classList.add("in"));
+  // filter pills
+  $$("[data-filter]").forEach(group=>{
+    group.addEventListener("click",e=>{ const p=e.target.closest(".pill"); if(!p) return;
+      $$(".pill",group).forEach(x=>x.classList.toggle("on",x===p));
+      const v=p.dataset.v, target=$(group.dataset.filter);
+      $$("[data-cat]",target).forEach(it=>it.style.display=(v==="all"||it.dataset.cat.split(" ").includes(v))?"":"none");
+    });
+  });
+  // ask lines (inner pages)
+  $$("form.askline").forEach(f=>f.addEventListener("submit",e=>{ e.preventDefault(); const v=f.q.value.trim(); if(!v) return; f.q.value=""; window.ER&&ER.ask(v) }));
+  // newsletter
+  $$("form[data-subscribe]").forEach(f=>f.addEventListener("submit",e=>{ e.preventDefault(); f.innerHTML='<p style="font-weight:600">Спасибо! Подтверждение придёт на почту, как только подписка заработает.</p>' }));
+  // modal (callback / order)
+  const modal=$("#modal");
+  $$("[data-order]").forEach(b=>b.addEventListener("click",()=>{ if(!modal) return; $("#modal-title").textContent=b.dataset.order||"Заказать звонок"; $("#modal-form").style.display=""; $("#modal-done").style.display="none"; modal.classList.add("open") }));
+  if(modal){
+    modal.addEventListener("click",e=>{ if(e.target===modal||e.target.closest(".x")) modal.classList.remove("open") });
+    $("#modal-form").addEventListener("submit",e=>{ e.preventDefault(); const f=e.target;
+      const t=`Здравствуйте! ${f.n.value}. Тема: ${$("#modal-title").textContent}. Контакт: ${f.c.value}. ${f.m.value||""}`.trim();
+      const url=`https://wa.me/34690246487?text=${encodeURIComponent(t)}`;
+      f.style.display="none"; const d=$("#modal-done"); d.style.display=""; d.innerHTML=`Почти готово! Откройте <a href="${url}" target="_blank" rel="noopener">WhatsApp</a> и нажмите «Отправить» — менеджер ответит в рабочее время. Или позвоните: <b>+34 93 272 64 90</b>.`;
+    });
+  }
+  // mortgage calculator
+  const calc=$("#calc");
+  if(calc){
+    const f=v=>new Intl.NumberFormat("ru-RU",{maximumFractionDigits:0}).format(v)+" €";
+    const upd=()=>{ const p=+calc.price.value, dp=+calc.down.value, r=+calc.rate.value/100/12, n=+calc.years.value*12, tax=+calc.tax.value/100;
+      const loan=p*(1-dp/100), pay=r?loan*r/(1-Math.pow(1+r,-n)):loan/n;
+      $("#v-price").textContent=f(p); $("#v-down").textContent=dp+"%"; $("#v-rate").textContent=(+calc.rate.value).toFixed(2)+"%"; $("#v-years").textContent=calc.years.value+" лет"; $("#v-tax").textContent=calc.tax.value+"%";
+      $("#o-pay").textContent=f(pay); $("#o-loan").textContent=f(loan); $("#o-down").textContent=f(p*dp/100); $("#o-tax").textContent=f(p*tax+p*0.015); $("#o-cash").textContent=f(p*dp/100+p*tax+p*0.015); $("#o-total").textContent=f(pay*n);
+    };
+    calc.addEventListener("input",upd); upd();
+  }
+  // A–Z pedia
+  const az=$(".az"); if(az) az.addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; $$("button",az).forEach(x=>x.classList.toggle("on",x===b)); const h=$("#L-"+b.textContent); if(h) h.scrollIntoView({behavior:"smooth",block:"start"}) });
+  // pedia search
+  const ps=$("#pedia-search"); if(ps) ps.addEventListener("input",()=>{ const q=ps.value.toLowerCase(); $$(".pedia-list a").forEach(a=>a.style.display=a.textContent.toLowerCase().includes(q)?"":"none") });
+});
+})();

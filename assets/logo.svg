@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 96" role="img" aria-label="Испания по-русски">
+  <defs>
+    <style>
+      .w{font-family:Unbounded,'Arial Black',sans-serif;font-weight:800;font-size:52px;letter-spacing:-1.5px;fill:#0E1220}
+      .s{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:600;font-size:30px;fill:#C8452C}
+    </style>
+  </defs>
+  <text class="w" x="0" y="54">ИСПАНИЯ</text>
+  <g fill="none" stroke-linecap="round">
+    <path d="M4 74 C 60 60, 120 86, 176 70" stroke="#D9DDE6" stroke-width="3.2"/>
+    <path d="M4 80 C 60 66, 120 92, 176 76" stroke="#2F54C8" stroke-width="3.2"/>
+    <path d="M4 86 C 60 72, 120 98, 176 82" stroke="#C8452C" stroke-width="3.2"/>
+  </g>
+  <text class="s" x="190" y="86">по-русски</text>
+</svg>
