@@ -227,7 +227,7 @@ function mount(el,o={}){
     save(); renderAll();
   });
   render(c);
-  if(o.autofocus) setTimeout(()=>ta.focus({preventScroll:true}),300);
+  if(o.autofocus && !location.hash) setTimeout(()=>ta.focus({preventScroll:true}),300);
   return c;
 }
 

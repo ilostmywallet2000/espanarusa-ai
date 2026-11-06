@@ -679,3 +679,13 @@ body{font-feature-settings:"kern","liga"}
 .plans-note button{border:0;background:none;padding:0;font:inherit;color:var(--rojo);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
 @media (max-width:1020px){.plans{grid-template-columns:1fr;max-width:520px;margin:0 auto}.plan-hot{transform:none}.plans-sec .sec-h{flex-direction:column;align-items:flex-start}.pl-sub{min-height:0}}
 @media (max-width:640px){.plan{padding:28px 22px 24px}.price b{font-size:38px}}
+/* hero subscription pill + nav highlight */
+.hero-plan{display:inline-flex;align-items:center;gap:12px;margin-top:26px;padding:10px 16px 10px 10px;border:1px solid rgba(221,169,79,.4);border-radius:999px;background:rgba(11,18,34,.55);backdrop-filter:blur(6px);color:var(--paper);text-decoration:none;font-size:14px;transition:border-color .2s,background .2s}
+.hero-plan:hover{border-color:var(--saffron);background:rgba(11,18,34,.8)}
+.hero-plan .hp-tag{background:var(--saffron);color:var(--ink);font:700 10.5px var(--f-ui);letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;border-radius:999px}
+.hero-plan b{color:var(--saffron)}
+.hero-plan i{font-style:normal;color:var(--muted-d)}
+.hero-plan svg{width:15px;height:15px;color:var(--saffron);flex:none}
+.navrow nav a[href$="#plans"]{color:var(--rojo)}
+@media (max-width:640px){.hero-plan{font-size:13px;gap:9px;margin-top:20px}.hero-plan i{display:block}}
+#plans{scroll-margin-top:56px}
