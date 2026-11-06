@@ -5,7 +5,13 @@
    3) offline demo answers from ER_KB. */
 (function(){
 const CFG = Object.assign({ endpoint:null, whatsapp:"34690246487", phone:"+34 93 272 64 90" }, window.ER_CONFIG||{});
-const KB = window.ER_KB||[], SVC = window.ER_SERVICES||[];
+const KB = window.ER_KB||[], SVC = window.ER_SERVICES||[], BIZ = window.ER_BIZ||[];
+/*TXT*/const TXT={
+ bizIntro:"В **Витрине** нашёл, где говорят по-русски:",
+ bizOutro:"Хотите записаться? Нажмите **«Связаться с менеджером»** ниже — передам заявку, и с вами свяжутся для подтверждения времени. Все компании — в разделе [Витрина](vitrina.html).",
+ bizBook:"Отлично, запишу вас в **{n}** ({c}). Оставьте имя и контакт — передам заявку, и с вами свяжутся, чтобы подтвердить удобное время.",
+ bizLink:"Открыть Витрину"
+};/*/TXT*/
 const I = {
  send:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
@@ -51,6 +57,24 @@ function searchKB(q,n=2){
   return KB.map(k=>({k,s:k.keys.reduce((a,key)=>a+(hasKey(t,key)?key.length+3:0),0)+(hasKey(t,k.title)?5:0)}))
     .filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,n).map(x=>x.k);
 }
+const CITY_STEMS=["барселон","мадрид","валенси","коста-брав","аликант","торревьех","марбель","barcelon","madrid","valenci","costa brava","alicant","torrevie","marbell"];
+function findBiz(q){
+  const t=" "+norm(q)+" ";
+  const named=BIZ.filter(b=>{ const nm=norm(b.n).replace(/[«»"]/g,""); const core=nm.split(" ").slice(-1)[0]; return t.includes(nm)||(core.length>3&&hasKey(t,core)) });
+  if(named.length) return {named:named[0],list:[]};
+  let list=BIZ.map(b=>({b,s:b.k.reduce((a,k)=>a+(hasKey(t,k)?k.length:0),0)})).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).map(x=>x.b);
+  const city=CITY_STEMS.find(c=>t.includes(c));
+  if(city){ const inCity=list.filter(b=>norm(b.city).startsWith(city.slice(0,6))); if(inCity.length) list=inCity }
+  return {named:null,list:list.slice(0,3),city:!!city};
+}
+function bizAnswer(q,extras,force){
+  const r=findBiz(q);
+  if(r.named){ extras.handoff=q; extras.link=[TXT.bizLink,"vitrina.html"]; return TXT.bizBook.replace("{n}",r.named.n).replace("{c}",r.named.city) }
+  const intent=/запиш|записат|найди|посоветуй|порекоменд|подскажи хорош|рядом со|reserv|pedir cita|recomiend|cerca de/i.test(q);
+  if(r.list.length&&(force||intent)){ extras.link=[TXT.bizLink,"vitrina.html"];
+    return TXT.bizIntro+"\n\n"+r.list.map(b=>`- **${b.n}** — ${b.cat}, ${b.city} · ${b.area}. ${b.d}`).join("\n")+"\n\n"+TXT.bizOutro }
+  return null;
+}
 function findServices(q){
   const t=norm(q), hits=searchKB(q,2).flatMap(k=>k.svc||[]);
   const direct=SVC.filter(s=>t.split(/\s+/).some(w=>w.length>3&&norm(s.title+" "+s.d+" "+s.cat).includes(w.slice(0,5))));
@@ -69,6 +93,7 @@ function system(){
 - Сначала вызывай search_knowledge, чтобы опереться на проверенные материалы портала. Если не уверен в цифрах или закон мог измениться — скажи об этом и предложи проверку у специалиста. Не выдумывай законы, цены услуг, телефоны и адреса.
 - Если вопросу нужна практическая помощь (документы, ВНЖ, юрист, недвижимость, ипотека, школа, врач) — вызови find_services и одной фразой предложи услугу. Если пользователь хочет живого человека, звонок или «заказать» — вызови offer_manager.
 - Можно ссылаться на разделы сайта: [Новости](news.html), [Испанопедия](pedia.html), [Афиша](afisha.html), [Недвижимость](realestate.html), [Магазин услуг](services.html), [Объявления](ads.html).
+- Если человек ищет конкретное место или специалиста (ресторан, салон, врач, юрист, гестор, автосервис, магазин) или хочет записаться — вызови find_business и предложи 1–3 компании из Витрины; для записи вызови offer_manager.
 - Не давай персональных инвестиционных рекомендаций и медицинских диагнозов.
 Сегодня ${today}.`;
 }
@@ -102,6 +127,8 @@ async function answer(onText, extras){
        execute:({query})=>{ const r=searchKB(query,2); if(r[0]&&!extras.link) extras.link=r[0].link; return r.length?r.map(k=>({title:k.title,text:k.a})):{note:"В базе ничего не найдено, отвечай из общих знаний осторожно."} }},
       {name:"find_services",description:"Найти услуги в Магазине услуг портала по теме вопроса.",inputSchema:{type:"object",properties:{query:{type:"string"}},required:["query"]},
        execute:({query})=>{ const r=findServices(query); extras.services=r; return r.map(s=>({title:s.title,category:s.cat,about:s.d})) }},
+      {name:"find_business",description:"Найти русскоязычные компании в Витрине портала (рестораны, салоны, врачи, юристы, гестории, автосервисы, магазины) по запросу и городу.",inputSchema:{type:"object",properties:{query:{type:"string"}},required:["query"]},
+       execute:({query})=>{ const r=findBiz(query); const l=r.named?[r.named]:r.list; if(l.length) extras.link=[TXT.bizLink,"vitrina.html"]; return l.length?l.map(b=>({name:b.n,category:b.cat,city:b.city+" · "+b.area,about:b.d,tags:b.tags})):{note:"В Витрине пока нет подходящих компаний."} }},
       {name:"offer_manager",description:"Показать пользователю форму связи с живым менеджером (WhatsApp/звонок).",inputSchema:{type:"object",properties:{topic:{type:"string"}}},
        execute:({topic})=>{ extras.handoff=topic||lastQ; return {shown:true} }}
     ];
@@ -110,13 +137,14 @@ async function answer(onText, extras){
   }
   // offline demo
   const hits=searchKB(lastQ,1);
-  let text;
-  if(/менеджер|человек|позвон|связат|заказ/i.test(lastQ)){
+  let text=bizAnswer(lastQ,extras,false);
+  if(text){ /* Vitrina */ }
+  else if(/менеджер|человек|позвон|связат|заказ/i.test(lastQ)){
     text="Конечно! Оставьте имя и удобный контакт — **дежурный менеджер** «Испании по-русски» свяжется с вами в рабочее время (пн–пт, 9:00–19:00 по Испании).";
     extras.handoff=lastQ;
   } else if(hits[0]){
     text=hits[0].a; extras.link=hits[0].link; extras.services=(hits[0].svc||[]).map(id=>SVC.find(s=>s.id===id)).filter(Boolean);
-  } else {
+  } else if(text=bizAnswer(lastQ,extras,true)){ /* Vitrina, no intent words */ } else {
     text=`Хороший вопрос. В демо-режиме я отвечаю на самые частые темы: **NIE, ВНЖ, ипотека, аренда, налоги, autónomo, школы, медицина, права, банки, гражданство, досуг**.
 
 Когда меня подключат к полной базе (70 000 материалов портала), я отвечу и на это. А пока могу сразу **передать вопрос живому менеджеру** — он ответит на русском.`;

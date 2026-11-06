@@ -45,6 +45,13 @@ document.addEventListener("DOMContentLoaded",()=>{
     $$("button",bill).forEach(x=>x.classList.toggle("on",x===b));
     $$(".price[data-m]").forEach(p=>{ $("b",p).textContent=y?p.dataset.y:p.dataset.m; const sp=$("span",p); sp.textContent=y?sp.dataset.y:sp.dataset.m }) });
   $$("[data-top]").forEach(a=>a.addEventListener("click",e=>{ e.preventDefault(); scrollTo({top:0,behavior:"smooth"}); const t=$(".ap textarea, [data-console-hero] textarea"); if(t) setTimeout(()=>t.focus({preventScroll:true}),500) }));
+  // Vitrina: category pills + city select, combined
+  const bizG=$("#biz");
+  if(bizG){ const st={cat:"all",city:"all"};
+    const apply=()=>{ let n=0; $$(".biz",bizG).forEach(b=>{ const ok=(st.cat==="all"||b.dataset.cat===st.cat)&&(st.city==="all"||b.dataset.city===st.city); b.style.display=ok?"":"none"; if(ok){ n++; b.classList.add("in") } }); const e=$(".biz-empty"); if(e) e.hidden=n>0 };
+    const pg=$('[data-vf="cat"]'); if(pg) pg.addEventListener("click",e=>{ const p=e.target.closest(".pill"); if(!p) return; $$(".pill",pg).forEach(x=>x.classList.toggle("on",x===p)); st.cat=p.dataset.v; apply() });
+    const cs=$('select[data-vf="city"]'); if(cs) cs.addEventListener("change",()=>{ st.city=cs.value; apply() });
+  }
   // A–Z pedia
   const az=$(".az"); if(az) az.addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; $$("button",az).forEach(x=>x.classList.toggle("on",x===b)); const h=$("#L-"+b.textContent); if(h) h.scrollIntoView({behavior:"smooth",block:"start"}) });
   // pedia search
